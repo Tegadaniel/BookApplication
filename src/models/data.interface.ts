@@ -2,8 +2,8 @@ export interface IPost {
     publisher: string;
     name : string;
     isbn: string;
-    author: string[];
-    date: Date;
+    authors: string[];
+    released: string;
  }
 
  export const defaultPosts: IPost[] = [];
