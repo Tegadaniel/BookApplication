@@ -4,6 +4,8 @@ export interface IPost {
     isbn: string;
     authors: string[];
     released: string;
+    culture: string;
  }
+
 
  export const defaultPosts: IPost[] = [];

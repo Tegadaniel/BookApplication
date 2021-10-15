@@ -7,21 +7,28 @@ import Loader from 'react-loader-spinner';
 
 const BodyBook = () => {
     const [posts, setPosts]: [IPost[], (posts: IPost[]) => void] = useState(defaultPosts);
+    const [character, setCharacter]: [IPost[], (character: IPost[]) => void] = useState(defaultPosts);
     const [loading, setLoading]: [boolean, (loading: boolean) => void] = React.useState<boolean>(true);
     const [error, setError]: [string, (error: string) => void] = React.useState("");
 
-    useEffect(() => {
-        axios
-            .get<IPost[]>('https://www.anapioficeandfire.com/api/books', {
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                timeout: 10000,
-            })
-            .then((response) => {
-                setPosts(response.data);
+    const fetchData = () => {
+        const bookAPI = 'https://www.anapioficeandfire.com/api/books';
+        const characterAPI = 'https://www.anapioficeandfire.com/api/characters';
+
+        const getCharacter = axios.get<IPost[]>(characterAPI)
+        const getBooks = axios.get<IPost[]>(bookAPI)
+
+
+        axios.all([getBooks, getCharacter]).then(
+            axios.spread((...allData) => {
+                const allBookData = allData[0]
+                const allCharacterData = allData[1]
+
+                setPosts(allBookData.data);
+                setCharacter(allCharacterData.data)
                 setLoading(false);
             })
+        )
             .catch((ex) => {
                 let error = axios.isCancel(ex)
                     ? 'Request Cancelled'
@@ -34,6 +41,10 @@ const BodyBook = () => {
                 setError(error);
                 setLoading(false);
             });
+    }
+
+    useEffect(() => {
+        fetchData();
     }, []);
     return (
         <>
