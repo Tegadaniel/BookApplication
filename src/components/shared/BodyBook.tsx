@@ -3,9 +3,9 @@ import axios from 'axios';
 import styles from './body.module.scss';
 import { IPost, defaultPosts } from '../../models/data.interface';
 import "bootswatch/dist/lux/bootstrap.css";
-import Loader from 'react-loader-spinner';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import EndMsg from './EndMessage';
+import MiddleLoader from './MiddleLoader';
 
 const BodyBook = () => {
     const [posts, setPosts]: [IPost[], (posts: IPost[]) => void] = useState(defaultPosts);
@@ -13,6 +13,8 @@ const BodyBook = () => {
     const [loading, setLoading]: [boolean, (loading: boolean) => void] = useState<boolean>(true);
     const [hasMore, setHasMore]: [boolean, (hasMore: boolean) => void] = useState<boolean>(true);
     const [error, setError]: [string, (error: string) => void] = useState("");
+    const [selected, setSelect] = useState("");
+    const [search, setSearch] = useState("");
     const [page, setPage]: [number, (page: number) => void] = useState<number>(2);
 
     const fetchData = () => {
@@ -47,7 +49,6 @@ const BodyBook = () => {
         fetchData();
     }, []);
 
-
     const fetchMore = async () => {
         const urls = [
             `https://www.anapioficeandfire.com/api/books?page=${page}&pageSize=10`,
@@ -73,14 +74,28 @@ const BodyBook = () => {
         setPage(page + 1);
     }
 
+    const filteredPost = posts.filter((post) =>
+        post.name.toLowerCase().includes(search.toLowerCase()) ||
+        post.isbn.toLowerCase().includes(search.toLowerCase()) ||
+        post.publisher.toLowerCase().includes(search.toLowerCase()) ||
+        (new Date(post.released).toDateString()).toLowerCase().includes(search.toLowerCase()) ||
+        post.authors.map(author => author.toLowerCase()).join(",").includes(search.toLowerCase())
+    )
+
+    const filteredCharacter = character.filter((character) => (
+        character.culture.toLowerCase().includes(search.toLowerCase()) ||
+        character.name.toLowerCase().includes(search.toLowerCase())
+    ))
+
     return (
         <>
-            {loading ? <Loader type="ThreeDots" color="gray" height="100" width="100" /> :
+            {loading ? <MiddleLoader /> :
                 <InfiniteScroll
+                    style={{ overflow: "hidden" }}
                     dataLength={character.length}
                     next={fetchMorePost}
                     hasMore={hasMore}
-                    loader={<Loader type="ThreeDots" color="gray" height="100" width="100" />}
+                    loader={<MiddleLoader />}
                     endMessage={<EndMsg />}
                 >
                     <div className={styles.p__container} >
@@ -102,8 +117,10 @@ const BodyBook = () => {
                             <div className="col-sm-4  pb-5">
                                 <div className="form-group">
                                     <input
-                                        type="text"
+                                        type="search"
                                         name="search"
+                                        value={search}
+                                        onChange={(e) => setSearch(e.target.value)}
                                         placeholder="Search product"
                                         className="form-control"
                                         id="search"
@@ -112,22 +129,22 @@ const BodyBook = () => {
                             </div>
                         </div>
                         <div className={styles.p__grid}>
-                            {posts.length > 0 ? posts.map((post, i) => (
+                            {posts.length > 0 && filteredPost.map((post, i) => (
                                 <div key={i * 2} className="card card-body">
-                                    <p>Publisher: {post.publisher}</p>
-                                    <h5 className="text-left">Name: {post.name}</h5>
-                                    <h5 className="text-left">Author: {post.authors}</h5>
-                                    <h5 className="text-right">ISBN: {post.isbn}</h5>
-                                    <h5 className="text-right">Date: {new Date(post.released).toDateString()}</h5>
+                                    <h5>Publisher: {post.publisher}</h5>
+                                    <p className="text-left">Name: {post.name}</p>
+                                    <p className="text-left">Author: {post.authors}</p>
+                                    <p className="text-right">ISBN: {post.isbn}</p>
+                                    <p className="text-right">Date: {new Date(post.released).toDateString()}</p>
                                 </div>
-                            )) : " "}
-                            {character.length > 0 && character.map((character, i) => (
+                            ))}
+                            {character.length > 0 && filteredCharacter.map((character, i) => (
                                 <div key={i * 3} className="card card-body">
-                                    <p>Character Name: {character.name ? character.name : "Name not present"}</p>
-                                    <h5 className="text-left">Gender: {character.gender}</h5>
-                                    <h5 className="text-right">Culture: {character.culture}</h5>
-                                    <h5 className="text-right">Aliases: {character.aliases}</h5>
-                                    <h5 className="text-right">Books: {character.books.length ? character.books.length : " No books present"}</h5>
+                                    <h5>Character Name: {character.name ? character.name : "Name not present"}</h5>
+                                    <p className="text-left">Gender: {character.gender ? character.gender : "Gender not present"}</p>
+                                    <p className="text-right">Aliases: {character.aliases ? character.aliases : "Aliases not present"}</p>
+                                    <p className="text-right">Culture: {character.culture ? character.culture : "Culture not present"}</p>
+                                    <p className="text-right">Books: {character.books.length ? character.books.length : " No books present"}</p>
                                 </div>))}
                         </div>
                         {error && <p className="error">{error}</p>}

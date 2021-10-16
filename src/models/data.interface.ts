@@ -6,7 +6,7 @@ export interface IPost {
     released: string;
     culture: string;
     gender:string;
-    aliases: string;
+    aliases: string[];
     books: string[];
  }
 
