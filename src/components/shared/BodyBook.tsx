@@ -100,28 +100,15 @@ const BodyBook = () => {
                 >
                     <div className={styles.p__container} >
                         <div className="row">
-                            <div className="col-sm-4 pb-5">
-                                <select
-                                    className="form-select"
-                                    id="exampleSelect1"
-                                    name="name">
-                                    <option value="">Choose a Category</option>
-                                    <option value="publisher">Publisher</option>
-                                    <option value="name">Name</option>
-                                    <option value="authors">Author</option>
-                                    <option value="released">Date</option>
-                                    <option value="culture">Culture</option>
-                                </select>
-                            </div>
-                            <div className="col-sm-4"></div>
-                            <div className="col-sm-4  pb-5">
+                            {/* <div className="col-sm-8"></div> */}
+                            <div className="col-sm-4  pb-3 pt-3">
                                 <div className="form-group">
                                     <input
                                         type="search"
                                         name="search"
                                         value={search}
                                         onChange={(e) => setSearch(e.target.value)}
-                                        placeholder="Search product"
+                                        placeholder="Search"
                                         className="form-control"
                                         id="search"
                                     />
