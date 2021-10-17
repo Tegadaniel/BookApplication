@@ -13,7 +13,6 @@ const BodyBook = () => {
     const [loading, setLoading]: [boolean, (loading: boolean) => void] = useState<boolean>(true);
     const [hasMore, setHasMore]: [boolean, (hasMore: boolean) => void] = useState<boolean>(true);
     const [error, setError]: [string, (error: string) => void] = useState("");
-    const [selected, setSelect] = useState("");
     const [search, setSearch] = useState("");
     const [page, setPage]: [number, (page: number) => void] = useState<number>(2);
 
@@ -23,27 +22,28 @@ const BodyBook = () => {
 
         const getCharacter = axios.get<IPost[]>(characterAPI)
         const getBooks = axios.get<IPost[]>(bookAPI)
-        axios.all([getBooks, getCharacter]).then(
-            axios.spread((...allData) => {
-                const allBookData = allData[0]
-                const allCharacterData = allData[1]
+        axios.all([getBooks, getCharacter])
+            .then(
+                axios.spread((...allData) => {
+                    const allBookData = allData[0]
+                    const allCharacterData = allData[1]
 
-                setPosts(allBookData.data);
-                setCharacter(allCharacterData.data)
+                    setPosts(allBookData.data);
+                    setCharacter(allCharacterData.data)
+                    setLoading(false);
+                })
+            ).catch((ex) => {
+                let error = axios.isCancel(ex)
+                    ? 'Request Cancelled'
+                    : ex.code === 'ECONNABORTED'
+                        ? 'A timeout has occurred'
+                        : ex.response.status === 404
+                            ? 'Resource Not Found'
+                            : 'An unexpected error has occurred';
+
+                setError(error);
                 setLoading(false);
-            })
-        ).catch((ex) => {
-            let error = axios.isCancel(ex)
-                ? 'Request Cancelled'
-                : ex.code === 'ECONNABORTED'
-                    ? 'A timeout has occurred'
-                    : ex.response.status === 404
-                        ? 'Resource Not Found'
-                        : 'An unexpected error has occurred';
-
-            setError(error);
-            setLoading(false);
-        });
+            });
     }
     useEffect(() => {
         fetchData();
@@ -89,7 +89,7 @@ const BodyBook = () => {
 
     return (
         <>
-            {loading ? <MiddleLoader /> :
+            {loading ? <MiddleLoader data-testid="loading" /> :
                 <InfiniteScroll
                     style={{ overflow: "hidden" }}
                     dataLength={character.length}
@@ -100,7 +100,6 @@ const BodyBook = () => {
                 >
                     <div className={styles.p__container} >
                         <div className="row">
-                            {/* <div className="col-sm-8"></div> */}
                             <div className="col-sm-4  pb-3 pt-3">
                                 <div className="form-group">
                                     <input
@@ -142,5 +141,4 @@ const BodyBook = () => {
         </>
     )
 }
-
 export default BodyBook;

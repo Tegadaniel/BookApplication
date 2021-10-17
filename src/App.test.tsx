@@ -1,7 +1,10 @@
-import React from 'react';
-import { fireEvent, render, waitFor } from '@testing-library/react';
+import React from 'react'
+import { render, waitFor, fireEvent } from '@testing-library/react'
 import fetchMock from "fetch-mock";
 import BodyBook from './components/shared/BodyBook';
+import axiosMock from 'axios'
+
+jest.mock('axios')
 
 
 // describe('Test App', () => {
@@ -29,7 +32,7 @@ import BodyBook from './components/shared/BodyBook';
 
 //         const {getByText} = render(<BodyBook/>);
 
-//         const book1 = await waitFor<HTMLElement>(
+//         const book1 = await waitFor(
 //             () => getByText(' A Game of Thrones')
 //         );
 //         expect(book1).toBeInTheDocument();
@@ -37,8 +40,27 @@ import BodyBook from './components/shared/BodyBook';
 
 // })
 
-it('Verify if text exists', () =>{
-    const {getByText} = render(<BodyBook/>)
-    const text = getByText(/A Game of Thrones/)
-    expect(text).toBeInTheDocument()
+// it('should display a loading text', () => {
+
+//     const { getByTestId } = render(<BodyBook />)
+   
+//      expect(getByTestId('loading')).toHaveTextContent("ThreeDots")
+//    })
+
+it('should load and display the data', async () => {
+    const url = '/greeting'
+    const { getByTestId } = render(<BodyBook />)
+  
+    // axiosMock.get.mockResolvedValueOnce({
+    //   data: { greeting: 'hello there' },
+    // })
+    axiosMock.get.mockResolvedValueOnce
+    fireEvent.click(getByTestId('fetch-data'))
+
+    const greetingData = await waitFor(() => getByTestId('show-data'))
+  
+    expect(axiosMock.get).toHaveBeenCalledTimes(1)
+    expect(axiosMock.get).toHaveBeenCalledWith(url)
+    expect(greetingData).toHaveTextContent('hello there')
+
 })
