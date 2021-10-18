@@ -9,6 +9,13 @@ export interface IPost {
     aliases: string[];
     books: string[];
  }
+ export interface IBook {
+    publisher: string;
+    name : string;
+    isbn: string;
+    authors: string[];
+    released: string;
+ }
 
 
  export const defaultPosts: IPost[] = [];

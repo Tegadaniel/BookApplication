@@ -5,7 +5,7 @@ import styles from './footer.module.scss';
 
 export default function MiddleLoader() {
     return (
-        <div className={`${styles.footer}  mt-5 p-3`}>
+        <div data-testid="loading" className={`${styles.footer}  mt-5 p-3`}>
             <Loader type="ThreeDots" color="gray" height="100" width="100" />
         </div>
     )

@@ -1,66 +1,42 @@
 import React from 'react'
-import { render, waitFor, fireEvent } from '@testing-library/react'
-import fetchMock from "fetch-mock";
+import { render, waitFor, screen, within, cleanup, act } from '@testing-library/react'
 import BodyBook from './components/shared/BodyBook';
-import axiosMock from 'axios'
+import BookHeader from './components/shared/BookHeader';
+import { singleBook } from './components/shared/apis/api';
+import { mocked } from 'ts-jest/utils';
 
-jest.mock('axios')
 
+afterEach(() => {
+    cleanup;
+    jest.resetAllMocks();
+});
+jest.mock('./components/shared/apis/api')
 
-// describe('Test App', () => {
-//     afterEach(() => {
-//         fetchMock.restore();
+const mockedAxios = mocked(singleBook);
+const book = [{
+    name: 'A Game of Thrones',
+    publisher: "Bantam Books",
+    released: "1996-08-01T00:00:00",
+    isbn: "978-0553103540",
+    authors: ['George R. R. Martin']
+}]
+
+// test('Renders a book correctly', async () => {
+//     mockedAxios.mockImplementationOnce(() => Promise.resolve(book));
+
+//     await act(async () => {
+//         const { getByText } = render(<BodyBook />);
+//          waitFor(() => [
+//             expect(
+//                 getByText(
+//                     'A Game of Thrones',
+//                 ),
+//             ).toBeTruthy(),
+//         ]);
 //     });
+// });
 
-//     test('Verify if the books loaded', async () => {
-//         const books = [
-//             { name: 'A Game of Thrones' },
-//             { name: 'A Clash of Kings' },
-//             { name: 'A Storm of Swords' },
-//             { name: 'The Hedge Knight' },
-//             { name: 'A Feast for Crows' },
-//             { name: 'The Sworn Sword' },
-//             { name: 'The Mystery Knight' },
-//             { name: 'A Dance with Dragons' },
-//             { name: 'The Princess and the Queen' },
-//             { name: 'The Rogue Prince' }
-//         ];
-//         fetchMock.mock('https://www.anapioficeandfire.com/api/books', {
-//             body: books,
-//             status: 200
-//         });
-
-//         const {getByText} = render(<BodyBook/>);
-
-//         const book1 = await waitFor(
-//             () => getByText(' A Game of Thrones')
-//         );
-//         expect(book1).toBeInTheDocument();
-//     })
-
-// })
-
-// it('should display a loading text', () => {
-
-//     const { getByTestId } = render(<BodyBook />)
-   
-//      expect(getByTestId('loading')).toHaveTextContent("ThreeDots")
-//    })
-
-it('should load and display the data', async () => {
-    const url = '/greeting'
-    const { getByTestId } = render(<BodyBook />)
-  
-    // axiosMock.get.mockResolvedValueOnce({
-    //   data: { greeting: 'hello there' },
-    // })
-    axiosMock.get.mockResolvedValueOnce
-    fireEvent.click(getByTestId('fetch-data'))
-
-    const greetingData = await waitFor(() => getByTestId('show-data'))
-  
-    expect(axiosMock.get).toHaveBeenCalledTimes(1)
-    expect(axiosMock.get).toHaveBeenCalledWith(url)
-    expect(greetingData).toHaveTextContent('hello there')
-
+it('should display a Book Store text', () => {
+    render(<BookHeader />)
+    screen.getByRole('heading', { name: /Book Store/ })
 })

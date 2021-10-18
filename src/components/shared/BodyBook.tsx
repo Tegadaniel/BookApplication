@@ -16,35 +16,35 @@ const BodyBook = () => {
     const [search, setSearch] = useState("");
     const [page, setPage]: [number, (page: number) => void] = useState<number>(2);
 
-    const fetchData = () => {
+
+    const fetchData = async () => {
         const bookAPI = 'https://www.anapioficeandfire.com/api/books?page=1&pageSize=10';
         const characterAPI = 'https://www.anapioficeandfire.com/api/characters?page=1&pageSize=10';
 
         const getCharacter = axios.get<IPost[]>(characterAPI)
         const getBooks = axios.get<IPost[]>(bookAPI)
-        axios.all([getBooks, getCharacter])
-            .then(
-                axios.spread((...allData) => {
-                    const allBookData = allData[0]
-                    const allCharacterData = allData[1]
-
-                    setPosts(allBookData.data);
-                    setCharacter(allCharacterData.data)
-                    setLoading(false);
-                })
-            ).catch((ex) => {
-                let error = axios.isCancel(ex)
-                    ? 'Request Cancelled'
-                    : ex.code === 'ECONNABORTED'
-                        ? 'A timeout has occurred'
-                        : ex.response.status === 404
-                            ? 'Resource Not Found'
-                            : 'An unexpected error has occurred';
-
-                setError(error);
+        try {
+            await axios.all([getBooks, getCharacter])
+                .then(
+                    axios.spread((...allData) => {
+                        const allBookData = allData[0]
+                        const allCharacterData = allData[1]
+                        setPosts(allBookData.data);
+                        setCharacter(allCharacterData.data)
+                        setLoading(false);
+                    })
+                )
+        }
+        catch (ex: any) {
+            if (ex.response.status === 404) {
+                setError('The server could not find this page.')
                 setLoading(false);
-            });
+            } else {
+                setError('The server did not respond the data we wanted. We apologize for the inconvenience.')
+            }
+        }
     }
+
     useEffect(() => {
         fetchData();
     }, []);
@@ -89,7 +89,7 @@ const BodyBook = () => {
 
     return (
         <>
-            {loading ? <MiddleLoader data-testid="loading" /> :
+            {loading && search.length === 0 ? <MiddleLoader /> :
                 <InfiniteScroll
                     style={{ overflow: "hidden" }}
                     dataLength={character.length}
@@ -128,7 +128,7 @@ const BodyBook = () => {
                                 <div key={i * 3} className="card card-body">
                                     <h5>Character Name: {character.name ? character.name : "Name not present"}</h5>
                                     <p className="text-left">Gender: {character.gender ? character.gender : "Gender not present"}</p>
-                                    <p className="text-right">Aliases: {character.aliases ? character.aliases : "Aliases not present"}</p>
+                                    <p className="text-right">Aliases: {character.aliases.length ? character.aliases : "Aliases not present"}</p>
                                     <p className="text-right">Culture: {character.culture ? character.culture : "Culture not present"}</p>
                                     <p className="text-right">Books: {character.books.length ? character.books.length : " No books present"}</p>
                                 </div>))}
